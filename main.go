@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -54,6 +55,11 @@ func getChannels() ([]*channel, error) {
 	if err := json.Unmarshal(respBody, &r); err != nil {
 		return nil, err
 	}
+
+	// TODO: return detail error message
+	if !r.OK {
+		return nil, errors.New("some error happened in Slack")
+	}
 	return r.Channels, nil
 }
 
@@ -81,6 +87,11 @@ func getMessages(channelID string, before time.Duration) ([]*message, error) {
 	r := new(result)
 	if err := json.Unmarshal(respBody, &r); err != nil {
 		return nil, err
+	}
+
+	// TODO: return detail error message
+	if !r.OK {
+		return nil, errors.New("some error happened in Slack")
 	}
 	return r.Messages, nil
 }
