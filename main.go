@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// baseURL is base URL of Slack API
 const baseURL = "https://slack.com/api"
 
 func main() {
@@ -39,10 +40,13 @@ func main() {
 	os.Exit(0)
 }
 
+// channel is DTO of Slack channel
 type channel struct {
 	ID string `json:"id"`
 }
 
+// getChannels gets channel list
+// >> https://api.slack.com/methods/channels.list
 func getChannels() ([]*channel, error) {
 	type result struct {
 		OK       bool `json:"ok"`
@@ -66,11 +70,14 @@ func getChannels() ([]*channel, error) {
 	return r.Channels, nil
 }
 
+// message is DTO of Slack message
 type message struct {
 	Text      string `json:"text"`
 	TimeStamp string `json:"ts"`
 }
 
+// getMessages gets messages before beforeDays in specified channel
+// >> https://api.slack.com/methods/conversations.history
 func getMessages(channelID string, beforeDays int) ([]*message, error) {
 	type result struct {
 		OK       bool `json:"ok"`
@@ -100,6 +107,8 @@ func getMessages(channelID string, beforeDays int) ([]*message, error) {
 	return r.Messages, nil
 }
 
+// deleteMessages deletes messages
+// >> https://api.slack.com/methods/chat.delete
 func deleteMessages(channelID string, messages []*message) error {
 	type result struct {
 		OK bool `json:"ok"`
@@ -131,6 +140,7 @@ func deleteMessages(channelID string, messages []*message) error {
 	return nil
 }
 
+// request is common function for sending HTTP request
 func request(method, path string, query map[string]string) ([]byte, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
