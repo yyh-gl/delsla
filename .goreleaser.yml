@@ -1,0 +1,11 @@
+env:
+  - GO111MODULE=on
+builds:
+  - main: .
+    binary: delsla
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
