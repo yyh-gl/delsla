@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	p "path"
+	"strconv"
+	"time"
 )
 
 const baseURL = "https://slack.com/api"
@@ -19,9 +21,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("========================")
-	fmt.Println(chs)
-	fmt.Println("========================")
+	for _, ch := range chs {
+		mss, err := getMessages(ch.ID, 3)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("========================")
+		for _, m := range mss {
+			fmt.Println(m.TimeStamp)
+		}
+		fmt.Println("========================")
+	}
 	os.Exit(0)
 }
 
@@ -45,6 +55,34 @@ func getChannels() ([]*channel, error) {
 		return nil, err
 	}
 	return r.Channels, nil
+}
+
+type message struct {
+	TimeStamp string `json:"ts"`
+}
+
+func getMessages(channelID string, before time.Duration) ([]*message, error) {
+	type result struct {
+		OK       bool `json:"ok"`
+		Messages []*message
+	}
+
+	unix := time.Now().Add(-before).Unix()
+	latest := strconv.Itoa(int(unix))
+	q := map[string]string{
+		"latest":  latest,
+		"channel": channelID,
+	}
+	respBody, err := request(http.MethodPost, "conversations.history", q)
+	if err != nil {
+		return nil, err
+	}
+
+	r := new(result)
+	if err := json.Unmarshal(respBody, &r); err != nil {
+		return nil, err
+	}
+	return r.Messages, nil
 }
 
 func request(method, path string, query map[string]string) ([]byte, error) {
