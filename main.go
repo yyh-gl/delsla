@@ -23,15 +23,18 @@ func main() {
 	}
 
 	for _, ch := range chs {
-		mss, err := getMessages(ch.ID, 3)
+		mss, err := getMessages(ch.ID, 1)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("========================")
-		for _, m := range mss {
-			fmt.Println(m.TimeStamp)
+
+		if err := deleteMessages(ch.ID, mss); err != nil {
+			log.Fatal(err)
 		}
-		fmt.Println("========================")
+
+		for _, m := range mss {
+			fmt.Println(m.Text)
+		}
 	}
 	os.Exit(0)
 }
@@ -64,16 +67,17 @@ func getChannels() ([]*channel, error) {
 }
 
 type message struct {
+	Text      string `json:"text"`
 	TimeStamp string `json:"ts"`
 }
 
-func getMessages(channelID string, before time.Duration) ([]*message, error) {
+func getMessages(channelID string, beforeDays int) ([]*message, error) {
 	type result struct {
 		OK       bool `json:"ok"`
 		Messages []*message
 	}
 
-	unix := time.Now().Add(-before).Unix()
+	unix := time.Now().AddDate(0, 0, -beforeDays).Unix()
 	latest := strconv.Itoa(int(unix))
 	q := map[string]string{
 		"latest":  latest,
@@ -94,6 +98,37 @@ func getMessages(channelID string, before time.Duration) ([]*message, error) {
 		return nil, errors.New("some error happened in Slack")
 	}
 	return r.Messages, nil
+}
+
+func deleteMessages(channelID string, messages []*message) error {
+	type result struct {
+		OK bool `json:"ok"`
+	}
+
+	for _, m := range messages {
+		q := map[string]string{
+			"channel": channelID,
+			"ts":      m.TimeStamp,
+		}
+		respBody, err := request(http.MethodPost, "chat.delete", q)
+		if err != nil {
+			return err
+		}
+
+		r := new(result)
+		if err := json.Unmarshal(respBody, &r); err != nil {
+			return err
+		}
+
+		// TODO: return detail error message
+		if !r.OK {
+			return errors.New("some error happened in Slack")
+		}
+
+		time.Sleep(2 * time.Second)
+	}
+
+	return nil
 }
 
 func request(method, path string, query map[string]string) ([]byte, error) {
