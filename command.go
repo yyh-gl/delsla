@@ -54,7 +54,7 @@ var (
 		Short: "Print the version",
 		Long:  "Print the version number of Delsla",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Delsla v0.0.1")
+			fmt.Println("Delsla v0.0.2")
 			os.Exit(0)
 		},
 	}
@@ -62,7 +62,7 @@ var (
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "perform", "p", false, "perform")
+	rootCmd.PersistentFlags().BoolVarP(&perform, "perform", "p", false, "perform")
 
 	rootCmd.AddCommand(versionCmd)
 }
