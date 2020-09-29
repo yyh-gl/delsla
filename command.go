@@ -24,10 +24,17 @@ var (
 				log.Fatal(err)
 			}
 
+			deleteMessagesCount := 0
 			for _, ch := range chs {
 				mss, err := getMessages(ch.ID, days)
 				if err != nil {
 					log.Fatal(err)
+				}
+
+				if !perform || verbose {
+					for _, m := range mss {
+						fmt.Println(m.Text)
+					}
 				}
 
 				if perform {
@@ -36,14 +43,19 @@ var (
 					}
 				}
 
-				if !perform || verbose {
-					for _, m := range mss {
-						fmt.Println(m.Text)
-					}
-				}
+				deleteMessagesCount += len(mss)
 			}
 
-			if !perform {
+			if perform {
+				switch deleteMessagesCount {
+				case 0:
+					fmt.Println("\nNo deleted messages")
+				case 1:
+					fmt.Println("\nDelete 1 message")
+				default:
+					fmt.Printf("\nDelete %d messages\n", deleteMessagesCount)
+				}
+			} else {
 				fmt.Println("\nThis is dry-run")
 			}
 
