@@ -23,7 +23,7 @@ var (
 			}
 
 			for _, ch := range chs {
-				mss, err := getMessages(ch.ID, 1)
+				mss, err := getMessages(ch.ID, 3)
 				if err != nil {
 					log.Fatal(err)
 				}
