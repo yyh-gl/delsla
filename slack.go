@@ -48,15 +48,15 @@ type message struct {
 	TimeStamp string `json:"ts"`
 }
 
-// getMessages gets messages before beforeDays in specified channel
+// getMessages gets messages before "days" in specified channel
 // >> https://api.slack.com/methods/conversations.history
-func getMessages(channelID string, beforeDays int) ([]*message, error) {
+func getMessages(channelID string, days int) ([]*message, error) {
 	type result struct {
 		OK       bool `json:"ok"`
 		Messages []*message
 	}
 
-	unix := time.Now().AddDate(0, 0, -beforeDays).Unix()
+	unix := time.Now().AddDate(0, 0, -days).Unix()
 	latest := strconv.Itoa(int(unix))
 	q := map[string]string{
 		"latest":  latest,

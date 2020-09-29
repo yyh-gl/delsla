@@ -11,6 +11,8 @@ import (
 var (
 	verbose bool
 	perform bool
+	// FIXME: variable name
+	days int
 
 	rootCmd = &cobra.Command{
 		Use:   "delsla",
@@ -23,7 +25,7 @@ var (
 			}
 
 			for _, ch := range chs {
-				mss, err := getMessages(ch.ID, 3)
+				mss, err := getMessages(ch.ID, days)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -63,6 +65,7 @@ var (
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&perform, "perform", "p", false, "perform")
+	rootCmd.PersistentFlags().IntVarP(&days, "days", "d", 3, "delete messages older than {days} days")
 
 	rootCmd.AddCommand(versionCmd)
 }
