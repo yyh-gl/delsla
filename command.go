@@ -68,7 +68,7 @@ var (
 		Short: "Print the version",
 		Long:  "Print the version number of Delsla",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Delsla v0.0.3")
+			fmt.Println("Delsla v0.0.4")
 			os.Exit(0)
 		},
 	}

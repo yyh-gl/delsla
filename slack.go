@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -23,6 +23,7 @@ func getChannels() ([]*channel, error) {
 	type result struct {
 		OK       bool `json:"ok"`
 		Channels []*channel
+		Error    string `json:"error,omitempty"`
 	}
 
 	respBody, err := request(http.MethodPost, "channels.list", nil)
@@ -35,9 +36,8 @@ func getChannels() ([]*channel, error) {
 		return nil, err
 	}
 
-	// TODO: return detail error message
 	if !r.OK {
-		return nil, errors.New("some error happened in Slack")
+		return nil, fmt.Errorf("channels.list: %s", r.Error)
 	}
 	return r.Channels, nil
 }
@@ -54,6 +54,7 @@ func getMessages(channelID string, days int) ([]*message, error) {
 	type result struct {
 		OK       bool `json:"ok"`
 		Messages []*message
+		Error    string `json:"error,omitempty"`
 	}
 
 	unix := time.Now().AddDate(0, 0, -days).Unix()
@@ -72,9 +73,8 @@ func getMessages(channelID string, days int) ([]*message, error) {
 		return nil, err
 	}
 
-	// TODO: return detail error message
 	if !r.OK {
-		return nil, errors.New("some error happened in Slack")
+		return nil, fmt.Errorf("conversations.history: %s", r.Error)
 	}
 	return r.Messages, nil
 }
@@ -83,7 +83,8 @@ func getMessages(channelID string, days int) ([]*message, error) {
 // >> https://api.slack.com/methods/chat.delete
 func deleteMessages(channelID string, messages []*message) error {
 	type result struct {
-		OK bool `json:"ok"`
+		OK    bool   `json:"ok"`
+		Error string `json:"error,omitempty"`
 	}
 
 	for _, m := range messages {
@@ -103,7 +104,7 @@ func deleteMessages(channelID string, messages []*message) error {
 
 		// TODO: return detail error message
 		if !r.OK {
-			return errors.New("some error happened in Slack")
+			return fmt.Errorf("chat.delete: %s", r.Error)
 		}
 
 		time.Sleep(2 * time.Second)
