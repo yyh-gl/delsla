@@ -26,7 +26,7 @@ func getChannels() ([]*channel, error) {
 		Error    string `json:"error,omitempty"`
 	}
 
-	respBody, err := request(http.MethodPost, "channels.list", nil)
+	respBody, err := request(http.MethodPost, "conversations.list", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func getChannels() ([]*channel, error) {
 	}
 
 	if !r.OK {
-		return nil, fmt.Errorf("channels.list: %s", r.Error)
+		return nil, fmt.Errorf("conversations.list: %s", r.Error)
 	}
 	return r.Channels, nil
 }
